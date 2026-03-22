@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Proto-Genesis · GM War Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050810;--sur:#0a0f1e;--sur2:#0f1628;--bdr:#1a2540;
+  --ac:#ff6b35;--ac2:#cc3300;
+  --tx:#c8d8f0;--dm:#7a94b0;--gr:#ffaa00;--rd:#ff3a5c;--gd:#ffd700;
+  --gn:#44cc66
+}
+html,body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:0 0 80px}
+button{font-family:'Rajdhani',sans-serif;cursor:pointer}
+input{font-family:'Rajdhani',sans-serif}
+/* Header */
+.hdr{background:linear-gradient(180deg,rgba(255,107,53,.09) 0%,transparent 100%);padding:16px 16px 0;text-align:center;border-bottom:1px solid var(--bdr);margin-bottom:0}
+.hdr h1{font-family:'Orbitron',monospace;font-size:clamp(1.1rem,5vw,1.6rem);font-weight:900;letter-spacing:.06em}
+.hdr h1 span{color:var(--ac)}
+.hdr-sub{font-size:.62rem;color:var(--dm);letter-spacing:.2em;text-transform:uppercase;margin-top:3px;padding-bottom:10px}
+/* Tab bar */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--bdr);background:var(--sur)}
+.tab{flex:1;padding:10px 4px;font-family:'Orbitron',monospace;font-size:.44rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:none;border:none;color:var(--dm);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+/* Panels */
+.panel{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;margin:12px 14px;overflow:hidden}
+.ph{padding:10px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.ph-title{font-family:'Orbitron',monospace;font-size:.52rem;color:var(--dm);letter-spacing:.14em}
+.pb{padding:12px 14px}
+/* Buttons */
+.btn{padding:7px 14px;border-radius:7px;border:none;font-family:'Orbitron',monospace;font-size:.5rem;font-weight:700;letter-spacing:.1em;cursor:pointer;transition:opacity .15s}
+.btn:active{opacity:.75}
+.btn-ac{background:var(--ac);color:#fff}
+.btn-rd{background:rgba(255,58,92,.15);border:1px solid rgba(255,58,92,.4);color:var(--rd)}
+.btn-gn{background:rgba(68,204,102,.15);border:1px solid rgba(68,204,102,.4);color:var(--gn)}
+.btn-gr{background:rgba(255,170,0,.12);border:1px solid rgba(255,170,0,.3);color:var(--gr)}
+.btn-dm{background:rgba(122,148,176,.08);border:1px solid var(--bdr);color:var(--dm)}
+.btn-sm{padding:4px 10px;font-size:.44rem}
+/* Player card */
+.p-card{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.p-card:last-child{margin-bottom:0}
+.p-name{font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;color:var(--tx)}
+.p-sub{font-size:.62rem;color:var(--dm);margin-top:1px}
+/* HP control */
+.hp-ctrl{display:flex;align-items:center;gap:6px}
+.hp-num{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:900;min-width:36px;text-align:center}
+.hp-bar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden;flex:1}
+.hp-fill{height:100%;border-radius:3px;transition:width .3s,background .2s}
+/* NPC stat card */
+.npc-card{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.npc-card:last-child{margin-bottom:0}
+.npc-name{font-family:'Orbitron',monospace;font-size:.56rem;font-weight:700;color:var(--ac)}
+.npc-role{font-size:.6rem;color:var(--dm);margin-top:1px;margin-bottom:6px}
+/* Condition chips */
+.cond-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;background:rgba(255,58,92,.1);border:1px solid rgba(255,58,92,.3);border-radius:20px;font-size:.54rem;font-family:'Orbitron',monospace;color:var(--rd);cursor:pointer}
+/* Harvest queue */
+.hq-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,170,0,.04);border:1px solid rgba(255,170,0,.15);border-radius:8px;margin-bottom:5px}
+.hq-item:last-child{margin-bottom:0}
+/* Round counter */
+.round-big{font-family:'Orbitron',monospace;font-size:2.4rem;font-weight:900;color:var(--ac);text-align:center;line-height:1}
+/* Log */
+.log-entry{font-size:.64rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);color:var(--dm)}
+.log-entry.header{color:var(--ac);font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.1em}
+.log-entry.warn{color:var(--rd)}
+.log-entry.good{color:var(--gn)}
+/* Setup screen */
+.setup-wrap{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;gap:20px}
+.setup-title{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--ac);letter-spacing:.08em}
+.setup-field{width:100%;max-width:360px}
+.setup-field label{display:block;font-family:'Orbitron',monospace;font-size:.46rem;color:var(--dm);letter-spacing:.12em;margin-bottom:5px}
+.setup-field input{width:100%;padding:12px 14px;background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;color:var(--tx);font-size:.85rem;outline:none}
+.setup-field input:focus{border-color:var(--ac)}
+/* Condition toggle list */
+.cond-grid{display:flex;flex-wrap:wrap;gap:5px}
+.cond-toggle{padding:3px 9px;border-radius:20px;border:1px solid var(--bdr);background:var(--sur);color:var(--dm);font-size:.56rem;cursor:pointer;transition:all .15s}
+.cond-toggle.on{background:rgba(255,58,92,.12);border-color:rgba(255,58,92,.4);color:var(--rd)}
+/* Trial selector */
+.trial-btn{flex:1;padding:10px 6px;font-family:'Orbitron',monospace;font-size:.44rem;font-weight:700;letter-spacing:.08em;border-radius:7px;border:1px solid var(--bdr);background:var(--sur);color:var(--dm);cursor:pointer;transition:all .15s;text-align:center}
+.trial-btn.active{background:rgba(255,107,53,.12);border-color:var(--ac);color:var(--ac)}
+/* Spacer */
+.gap{margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────────
+const FIREBASE_URL = 'https://pyrotheon-evo-sync-default-rtdb.firebaseio.com'; // Pyrotheon-Evo-Sync
+
+// ── FIREBASE REST ──────────────────────────────────────────────────────────────
+function fbURL(path){ return FIREBASE_URL + path + '.json'; }
+async function fbRead(path){
+  if(!FIREBASE_URL) return null;
+  try{ const r=await fetch(fbURL(path)); return r.ok?await r.json():null; }catch{ return null; }
+}
+async function fbWrite(path, data){
+  if(!FIREBASE_URL) return;
+  try{ await fetch(fbURL(path),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); }catch{}
+}
+async function fbPatch(path, data){
+  if(!FIREBASE_URL) return;
+  try{ await fetch(fbURL(path),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); }catch{}
+}
+async function fbDelete(path){
+  if(!FIREBASE_URL) return;
+  try{ await fetch(fbURL(path),{method:'DELETE'}); }catch{}
+}
+
+// ── NPC DATA — EPOCH 1, ALL TRIALS ────────────────────────────────────────────
+const NPC_PRESETS = {
+  trial1: [
+    {id:'npc_emberprey_a', name:'Ember Prey A', role:'Prey — scatter on approach',
+     hp:12, maxHp:12, ac:13, init:16, note:'Burrowing Escape on death if ungrappled'},
+    {id:'npc_emberprey_b', name:'Ember Prey B', role:'Prey — scatter on approach',
+     hp:12, maxHp:12, ac:13, init:12, note:'Burrowing Escape on death if ungrappled'},
+    {id:'npc_emberprey_c', name:'Ember Prey C', role:'Prey — scatter on approach',
+     hp:12, maxHp:12, ac:13, init:8,  note:'Burrowing Escape on death if ungrappled'},
+  ],
+  trial2: [
+    {id:'npc_scout_a',   name:'Ashclaw Scout A',  role:'Hunt weakest player',     hp:22,maxHp:22,ac:13,init:18,note:'Pack Tactics, Reckless, Camouflage'},
+    {id:'npc_scout_b',   name:'Ashclaw Scout B',  role:'Hunt weakest player',     hp:22,maxHp:22,ac:13,init:16,note:'Pack Tactics, Reckless, Camouflage'},
+    {id:'npc_bruiser',   name:'Ashclaw Bruiser',  role:'Draw aggro / peel',       hp:38,maxHp:38,ac:15,init:9, note:'Threatening Presence aura'},
+    {id:'npc_alpha',     name:'Alpha Ashclaw',    role:'Enters Round 3 at full HP',hp:55,maxHp:55,ac:16,init:22,note:'Alpha Aura: allies +2 to hit while Alpha lives. Enters Rd 3.'},
+  ],
+  trial3: [
+    {id:'npc_vorrn',     name:'The Vorrn',        role:'Tunnels through shaft walls — surfaces at summit full HP',
+     hp:90, maxHp:90, ac:14, init:6,
+     note:'Burrow 25ft through shaft walls. Speed 25ft. Tremorsense 60ft. SURFACES AT SUMMIT FULL HP — does not climb.'},
+    {id:'npc_leviathan', name:'The Leviathan',    role:'Environmental force — UNKILLABLE',
+     hp:999, maxHp:999, ac:25, init:0,
+     note:'Rises 60ft/round. Cannot be reduced below 1 HP. Eruption Surge: DC 18 DEX save, 6d10 fire on fail.'},
+  ],
+  trial4: [
+    {id:'npc_coil_healer',  name:'Coil Healer',  role:'KILL FIRST — priority target',hp:30,maxHp:30,ac:13,init:13,note:'Mass Heal 2d8+3 (bonus action). Protective Aura: allies within 30ft +2 AC.'},
+    {id:'npc_coil_support', name:'Coil Support', role:'Kill second',               hp:38,maxHp:38,ac:14,init:15,note:'Bodyguard: redirect half damage from ally within 10ft to self. Rally: 1d8+3 healing bonus action.'},
+    {id:'npc_coil_bruiser', name:'Coil Bruiser', role:'Kill third — absorb hits',  hp:65,maxHp:65,ac:17,init:11,note:'Stone Skin: reduce all damage by 3. Immovable. Crushing Blow 2d12+5.'},
+    {id:'npc_coil_striker', name:'Coil Striker', role:'Kill last',                 hp:45,maxHp:45,ac:15,init:19,note:'Predatory Focus: +1d6 vs targets below half HP. Twin Strike 1d10+4.'},
+  ],
+};
+
+// ── TRIAL DATA ─────────────────────────────────────────────────────────────────
+// ── TRIAL SCRIPTS — Pyrotheon Epoch 1 ─────────────────────────────────────────
+// Each card: { type, title, body, gm? }
+// type: 'read' | 'mechanic' | 'npc' | 'event' | 'award' | 'warning'
+const TRIAL_SCRIPT = {
+  trial1: [
+    {
+      type:'read', title:'Scene — The Ashland Plains',
+      body:`The ashplain stretches to the horizon, broken only by jagged obsidian ridges and the occasional sulfur vent hissing steam into a copper sky. The ground is warm underfoot — black glass over slow magma, thin in places. You can feel it.\n\nSmall shapes dart between the rock clusters ahead. Ember Prey — fast, skittish, already aware of you. The heat here doesn't care about your plans.\n\nYou have eight rounds. Secure what you can.`,
+    },
+    {
+      type:'warning', title:'Before You Roll Initiative',
+      body:`Remind players:\n• Objective: 3 Food Tokens = full HP refresh before Trial II\n• Each token beyond 3 converts to 5 EP at trial end\n• Harvest = Action OR Bonus Action, within 5ft of any dead creature\n• Ember Prey trigger Burrowing Escape on death — only prevented by grapple`,
+    },
+    {
+      type:'npc', title:'Ember Prey — Stat Block',
+      body:`AC 13 · HP 12 · Speed 40ft / Burrow 30ft\nSTR 8 DEX 16 CON 12 INT 3 WIS 14 CHA 5 · PB +2\n\n◆ Burrowing Escape: On death while ungrappled, burrows immediately. Gone.\n◆ Prey Instinct: Flees any source of damage. Moves away from attackers.\n\n▶ Tail Lash: +4, 1d4+2 bludgeoning, 5ft. Only attacks if cornered.`,
+      gm:`Run Prey as skittish animals, not combatants. They scatter — not toward players, never clustering. Space them across the map so players have to split or coordinate. Each Ember Prey that dies ungrappled is a failure state.`,
+    },
+    {
+      type:'npc', title:'Brood Swarm — Stat Block',
+      body:`AC 11 · HP 18 · Speed 30ft\nSwarm Resilience: Resistance to B/P/S from non-AoE attacks.\n\n▶ Envelop: DC 12 CON save or 1d6 fire damage + 1 Heat Strain stack.\n\nHeat Carrier: The swarm itself doesn't care about heat — it IS heat.`,
+      gm:`The Brood Swarm is a roaming hazard, not a priority target. It should block paths and complicate approaches to Ember Prey. If players focus it down, let them — it's a trap that costs them a round.`,
+    },
+    {
+      type:'mechanic', title:'Ash Vent — Environmental Hazard',
+      body:`Triggers on Initiative 20 each round.\n15ft cone, direction set at trial start (point it toward a cluster).\nDC 13 DEX save or: Blinded until end of next turn + 1 Heat Strain stack.\n\nPlayers in the cone when it triggers take the effect automatically unless they save.`,
+      gm:`Place 1–2 vents on the map. They add pressure without being deadly early. Point one toward where Ember Prey tend to cluster — forces players to either brave the vent or approach from a worse angle.`,
+    },
+    {
+      type:'mechanic', title:'Heat Strain — Full Rules',
+      body:`Stacks accumulate from Brood Swarm contact, Ash Vent exposure, and certain NPC attacks.\n\nStack effects:\n1–2: No mechanical effect\n3: Disadvantage on CON saves\n4: Speed reduced by 10ft\n5: 1d6 fire damage at start of each turn\n6: Incapacitated until a creature uses an action to cool them\n\nHeat Strain does NOT auto-stack every round in Trial I. That starts in Trial III.`,
+    },
+    {
+      type:'event', title:'Round 8 — Time Limit',
+      body:`At the end of Round 8, the trial closes regardless of token count.\n\nAnnounce: "The ashplain shifts. The vent pressure changes. Whatever you've secured, that's what you have."\n\nThen move directly to end-of-trial awards.`,
+      gm:`Don't extend for dramatic reasons. The hard stop is the whole point — it teaches players that time is the real enemy in Trial I, not the Prey.`,
+    },
+    {
+      type:'award', title:'End of Trial I — Awards',
+      body:`1. Count each player's Food Token total\n2. Players with 3+ tokens: Full HP refresh before Trial II\n3. Players with fewer than 3: No refresh — HP carries as-is\n4. ALL remaining tokens → 5 EP each (no cap)\n5. Open adaptation window if doing an EP spend between trials\n\nBase trial award: 10 EP flat to all survivors (already in GM app — use "Tokens → EP" button, then manually award flat EP if desired)`,
+    },
+  ],
+
+  trial2: [
+    {
+      type:'read', title:'Scene — The Lava Field Shelf',
+      body:`The ground cracks beneath your feet. Orange light pulses from below — slow-moving magma channels crossing the shelf in 10-foot-wide cuts, hot enough to kill. Stone platforms between them, some steady, some not.\n\nAcross the field, shapes move with too much coordination for animals. Ashclaw Predators. They've already seen you, and they're spreading out.\n\nNo timer this time. But your HP doesn't reset after this. Whatever you spend here, you carry into the shaft.`,
+    },
+    {
+      type:'warning', title:'Before You Roll Initiative',
+      body:`Remind players:\n• NO HP refresh before Trial III — HP carries forward\n• Harvest: 1 Essence per harvest action (any dead creature, 5ft, Action or Bonus Action)\n• 3 Essence = full HP refresh before Trial III\n• Alpha Ashclaw does NOT appear until Round 3 — do not place it yet\n• Scouts enter play immediately; Bruiser enters immediately`,
+    },
+    {
+      type:'mechanic', title:'Lava Channels — Terrain',
+      body:`10ft wide. Impassable without a check or flight.\nDC 14 Athletics to jump. Failure: fall in.\n\nFalling into lava: 3d10 fire damage immediately + pulled out requires a DC 12 STR check (action).\n\nUnstable Ledge: Any creature Shoved toward a channel edge makes DC 13 DEX save or falls in.`,
+      gm:`Lava channels are your best tool for punishing bad positioning. Scouts will use Flanking Dash to get adjacent to players near edges. Remind players that Shove is a free action on an attack — some builds will want to use this.`,
+    },
+    {
+      type:'npc', title:'Ashclaw Scout × 2 — Stat Block',
+      body:`AC 14 · HP 22 · Speed 40ft · PB +2\nSTR 14 DEX 16 CON 13 INT 6 WIS 12 CHA 8\n\n◆ Pack Tactics: Advantage on attacks when any ally is adjacent to target\n◆ Hit and Run: Disengage as a bonus action\n\n▶ Volcanic Bite: +5, 1d8+3 piercing + fire, 5ft\n▶ Cinder Rake: +4, 1d6+2 slashing, 5ft`,
+      gm:`Scouts hunt in pairs. Always move to flank — one engages, the other positions for Pack Tactics. They retreat below 25% HP using Hit and Run. They will absolutely try to shove players toward lava.`,
+    },
+    {
+      type:'npc', title:'Ashclaw Bruiser × 1 — Stat Block',
+      body:`AC 15 · HP 38 · Speed 30ft · PB +2\nSTR 18 DEX 11 CON 16 INT 5 WIS 10 CHA 7\n\n◆ Immovable: Advantage on saves vs. forced movement\n◆ Threatening Reach: 10ft melee. Creatures starting their turn within 10ft make DC 12 WIS or can't move away.\n\n▶ Magma Slam: +6, 2d8+4 bludgeoning, 10ft reach\n▶ Ground Smash: DC 14 DEX save (10ft radius), 1d10 bludgeoning, knocked prone on fail`,
+      gm:`Bruiser holds the center. It doesn't chase — it makes players come to it or route around it (toward lava). Ground Smash is the move when multiple players cluster. It's the door that doesn't open — the Scouts are the flankers.`,
+    },
+    {
+      type:'event', title:'Round 3 — Alpha Ashclaw Arrives',
+      body:`At the start of Round 3, read aloud:\n\n"Something larger moves behind the ridge. A sound between a roar and a crack of stone — and then it's there. Bigger than the others. Older. The scouts don't look at it, but their movements change."\n\nPlace the Alpha Ashclaw. It enters at full HP regardless of what's happened.`,
+      gm:`The Alpha enters from the edge opposite most players. It targets whoever has dealt the most damage to its scouts. Alpha Aura (+2 to hit for all Ashclaws while alive) activates immediately on entry — announce this.`,
+    },
+    {
+      type:'npc', title:'Alpha Ashclaw — Stat Block',
+      body:`AC 16 · HP 55 · Speed 35ft · PB +3\nSTR 20 DEX 14 CON 18 INT 9 WIS 14 CHA 13\n\n◆ Alpha Aura: All Ashclaws gain +2 to hit while Alpha is alive\n◆ Relentless: If reduced to 0 HP, drops to 1 HP instead (once per combat)\n\n▶ Obsidian Fang: +8, 2d10+5 piercing, 5ft. On hit: DC 14 STR or knocked prone.\n▶ Volcanic Roar: DC 14 CON save, 2d6 thunder, 30ft cone. Fail: Deafened 1 round.\n▶ Pack Command (bonus): All Ashclaws within 30ft may move up to 10ft immediately.`,
+    },
+    {
+      type:'award', title:'End of Trial II — Awards',
+      body:`Trial ends when all Ashclaws are eliminated or routed (below 25% HP and disengaged).\n\n1. Count Essence tokens per player\n2. Players with 3+ Essence: Full HP refresh before Trial III\n3. Players with fewer: HP carries as-is into the shaft\n4. Remaining Essence → 5 EP each\n5. +15 EP flat to all survivors for trial completion\n\nDo NOT open adaptation window between T2 and T3 — no time in the fiction.`,
+    },
+  ],
+
+  trial3: [
+    {
+      type:'read', title:'Scene — The Volcanic Shaft',
+      body:`The shaft opens above you — 200 feet of fractured rock and heat shimmer, a vertical scar in the volcano's flank. Platforms of compressed ash and obsidian cling to the walls at irregular intervals. Some look solid. None of them are.\n\nFrom below, a sound. Not an explosion — deeper than that. A pressure change you feel in your bones.\n\nIt's already rising.\n\nClimb.`,
+    },
+    {
+      type:'warning', title:'Before You Roll Initiative',
+      body:`Critical rules to announce:\n• Heat Strain stacks AUTOMATICALLY at end of every round — no save, no check. It simply happens.\n• The Leviathan is UNKILLABLE. It cannot be reduced below 1 HP by any means.\n• Vorrn does NOT climb. It tunnels through the shaft walls and surfaces at the summit at full HP.\n• NO HP refresh before Trial IV.\n• Platform Destroy yields 2 Ember Marks per platform destroyed below the Leviathan.`,
+    },
+    {
+      type:'mechanic', title:'The Climb — Structure',
+      body:`Map: 10 platforms, numbered 1 (bottom) to 10 (summit). Players start on platforms 1–2.\n\nMovement:\n• Standard: 1 platform per move action (or up to speed in feet, 20ft per platform)\n• Blink Step: Counts as 2 platforms per use\n• True Flight: 2 platforms per action, 1 per bonus action\n• Climbing speed: 1 platform per action (same as standard)\n\nGoal: Reach platform 10 (the summit) before the Leviathan does.`,
+    },
+    {
+      type:'mechanic', title:'Platform Collapse',
+      body:`Each platform collapses on Initiative 5, the round AFTER the first creature leaves it.\n\nCreatures still on a collapsing platform: DC 14 DEX save or fall to the platform below + 2d6 falling damage.\n\nDestroying a platform (DC 15 STR check, action, 20 HP): Immediately collapses. Counts as 2 Ember Marks for the player who destroys it — mark this manually in the GM app.`,
+      gm:`Track which platforms have been vacated and when. A sticky note or quick list works. Collapse is deterministic — no drama, just consequence. Players will learn to not linger.`,
+    },
+    {
+      type:'mechanic', title:'The Leviathan — Rise Rate',
+      body:`The Leviathan rises 60ft (3 platforms) per round, beginning Round 1.\n\nEnd of Round 1: Leviathan at platform 3\nEnd of Round 2: Platform 6\nEnd of Round 3: Platform 9\nEnd of Round 4+: Platform 10 — SUMMIT\n\nCreatures at or below the Leviathan's current platform level take 6d10 fire damage (DC 18 DEX for half) from Eruption Surge — no attack roll, automatic.\n\nIf the Leviathan reaches the summit before all players: Those players are consumed. They are dead.`,
+      gm:`The math is merciless. In 3 rounds the Leviathan is at platform 9. Most players need 4–5 rounds to reach the summit without movement abilities. Platform Destroy is the intended tool to buy time — announce that Vorrn seems to be heading upward through the walls if players look for context.`,
+    },
+    {
+      type:'npc', title:'The Vorrn — Context Only',
+      body:`Vorrn is not on the combat map. It tunnels through the shaft walls alongside the players.\n\nVorrn surfaces at the summit at full HP (90 HP, AC 14) regardless of what happened in prior trials.\n\nAnnounce when players reach platform 8–9: "You can hear something massive moving through the rock beside you. Not climbing. Boring."`,
+      gm:`Do not track Vorrn HP during T3. It arrives fresh. This is the reveal that sets up Trial IV — the players who thought they'd worn Vorrn down are wrong.`,
+    },
+    {
+      type:'event', title:'End of Round 1 — Heat Strain Reminder',
+      body:`At end of Round 1 (and every round), apply Heat Strain +1 to every creature on the map.\n\nThe GM app Next Round button does this automatically for players.\n\nFor NPCs (Vorrn): Track separately. Vorrn is immune to Heat Strain — it's adapted.`,
+    },
+    {
+      type:'award', title:'End of Trial III — Awards',
+      body:`Trial ends when all surviving players reach platform 10 (the summit).\n\nIf the Leviathan is destroyed (it won't be — it's unkillable — but if somehow reduced to 1 HP and overtaken):\n→ +35 EP flat to ALL survivors immediately\n\nEmber Marks → 5 EP each (use Tokens → EP button)\nCheckpoints: 1 Ember Mark per platform reached above platform 5 (optional — set this per your campaign pacing)\n\nHeat Strain stacks CARRY INTO TRIAL IV and Epoch 2. Do not clear them.`,
+    },
+  ],
+
+  trial4: [
+    {
+      type:'read', title:'Scene — The Caldera Summit',
+      body:`The summit. No more climbing. No more heat checks. Just the open sky above a caldera that hasn't decided whether it's done yet, and a flat obsidian platform wide enough that you can see everything.\n\nFour of them step out of the smoke on the far side. Built like you. Moving like you. They've been here before.\n\nThe Obsidian Coil.\n\nThey look at you the way you looked at the Ember Prey.`,
+    },
+    {
+      type:'warning', title:'Before You Roll Initiative',
+      body:`Critical announcements:\n• NO Heat Strain this trial — the summit is open sky, the worst is behind you\n• HP is whatever you arrived with — no refresh\n• Obsidian Coil start at FULL HP\n• Kill order matters: Healer → Support → Bruiser → Striker\n• Last 4 creatures standing from EITHER team become space-faring races\n• Lineage Trait awarded to all Trial IV survivors: Fire Immunity + CON +2`,
+    },
+    {
+      type:'npc', title:'Coil Healer — Kill First',
+      body:`AC 13 · HP 30 · Speed 30ft · PB +3 · Init +13\n\n◆ Protective Aura: All Coil allies within 30ft gain +2 AC while Healer is alive\n\n▶ Mending Touch: Melee, heals target Coil member for 2d8+3 HP\n▶ Mass Heal (bonus): All Coil members within 30ft regain 1d8+3 HP\n▶ Purge (reaction): Remove one condition from a Coil ally when they're targeted`,
+      gm:`The Healer is the force multiplier. Every round it lives, the Coil sustain is brutal. Players who ignore it to attack the Bruiser will find the Bruiser healing back. Focus fire here first.`,
+    },
+    {
+      type:'npc', title:'Coil Support — Kill Second',
+      body:`AC 14 · HP 38 · Speed 35ft · PB +3 · Init +15\n\n◆ Bodyguard: When a Coil ally within 10ft is hit, redirect half damage to Support (reaction)\n\n▶ Disrupting Strike: +5, 1d8+3 psychic, 5ft. Hit: DC 13 CON or target can't use reactions till end of their next turn\n▶ Rally (bonus): One Coil ally regains 1d8+3 HP and removes Frightened or Rattled`,
+      gm:`Support will intercept damage meant for the Healer. Position it between the Healer and the players. It's protecting the kill-priority target, which means players have to burn through it or route around it.`,
+    },
+    {
+      type:'npc', title:'Coil Bruiser — Kill Third',
+      body:`AC 17 · HP 65 · Speed 25ft · PB +3 · Init +11\n\n◆ Stone Skin: Reduce all incoming damage by 3 (minimum 1)\n◆ Immovable: Advantage on all saves vs. forced movement; immune to prone\n\n▶ Crushing Blow: +8, 2d12+5 bludgeoning, 10ft reach\n▶ Taunt Roar: DC 15 WIS save, 20ft. Fail: Must attack Bruiser on next turn`,
+      gm:`Bruiser draws aggro via Taunt Roar and soaks. Stone Skin makes every hit feel slightly wrong. Let it absorb punishment while the Healer and Support operate. Once the Healer is down, Bruiser becomes a cleanup problem.`,
+    },
+    {
+      type:'npc', title:'Coil Striker — Kill Last',
+      body:`AC 15 · HP 45 · Speed 40ft · PB +3 · Init +19\n\n◆ Predatory Focus: +1d6 damage against targets below half HP\n◆ Evasion: Half damage on DEX saves, no damage on success\n\n▶ Twin Strike: +7, 1d10+4 slashing × 2, 5ft\n▶ Ash Dash: Move full speed without provoking OAs (bonus action)\n\nBehavior: Hunts whoever is lowest HP. Will switch targets opportunistically.`,
+      gm:`Striker is the cleanup threat. Once the support structure is down, it hunts wounded players. It's not dangerous in the early rounds — it's dangerous when players are already hurt and the Healer is dead. Save it for last means it gets harder as the fight goes longer.`,
+    },
+    {
+      type:'mechanic', title:'Obsidian Coil — Coordination Rules',
+      body:`The Coil fights as a unit:\n\n• Healer always uses Mass Heal on its bonus action if any Coil member is below 60% HP\n• Support always uses Bodyguard reaction to protect the Healer first\n• Bruiser always uses Taunt Roar Round 1 to pull attention\n• Striker targets the lowest HP player, switching if that player goes down\n\nIf the Healer dies: Remove Protective Aura. All Coil lose +2 AC immediately.`,
+    },
+    {
+      type:'event', title:'Victory — Lineage Trait Award',
+      body:`When the trial ends (4 creatures left standing from either side):\n\nRead: "The caldera goes quiet. Whatever just happened here — the planet noticed. You can feel it in the soles of your feet, in the heat that no longer burns, in something that moved in your blood the moment the last one fell."\n\nAward Lineage Trait to all survivors: Fire Immunity + CON +2\nThis applies to surviving Coil members too — they are now space-faring races alongside the players.`,
+      gm:`Use the Lineage Trait button in the GM app. Then open the adaptation window — this is the full Epoch 1 → Epoch 2 transition point. Players spend all accumulated EP here before the next session.`,
+    },
+    {
+      type:'award', title:'End of Trial IV — Final Awards',
+      body:`Legacy Shards → 5 EP each\n• Standard harvest: 1 Shard per harvest action\n• Harvesting a Coil member: 2 Shards\n\nFinal EP tally: Add all session EP including:\n• T1 flat award (10 EP)\n• T2 flat award (15 EP)\n• T3 flat award (20 EP)\n• T4 flat award (25 EP)\n• All token/essence/mark/shard conversions\n• Any GM discretionary EP\n\nOpen adaptation window. Session ends when players have committed their EP spend.`,
+    },
+  ],
+};
+
+const TRIALS = [
+  {id:'trial1', label:'Trial I — Ashland Foraging',   shortLabel:'T1: Foraging',
+   ep_base:10, rounds_hint:'8 rounds',
+   harvest_label:'Food Tokens', harvest_per:'2/harvest', harvest_threshold:3, harvest_threshold_reward:'Full HP refresh before T2',
+   harvest_remainder_ep:5,
+   special:'Ungrappled Ember Prey trigger Burrowing Escape on death.',
+   ep_award:'5 EP per Food Token secured. No cap.'},
+  {id:'trial2', label:'Trial II — Mid-Range Predators', shortLabel:'T2: Predators',
+   ep_base:15, rounds_hint:'Open ended',
+   harvest_label:'Essence',    harvest_per:'1/harvest', harvest_threshold:3, harvest_threshold_reward:'Full HP refresh before T3',
+   harvest_remainder_ep:5,
+   special:'Alpha Ashclaw enters on Round 3 at full HP.',
+   ep_award:'5 EP per Essence. Base +15 EP flat for trial completion.'},
+  {id:'trial3', label:'Trial III — The Ascent',        shortLabel:'T3: Ascent',
+   ep_base:20, rounds_hint:'Race — ~5–8 rounds',
+   harvest_label:'Ember Marks', harvest_per:'1/checkpoint · 2/platform destroy', harvest_threshold:null, harvest_threshold_reward:'',
+   harvest_remainder_ep:5,
+   special:'Heat Strain auto-stacks every round. Vorrn surfaces at summit full HP. Platform Destroy: DC 15 STR, 20HP each.',
+   ep_award:'+35 EP flat to all survivors on Leviathan kill. 5 EP per Ember Mark.'},
+  {id:'trial4', label:'Trial IV — Final Battle (Obsidian Coil)', shortLabel:'T4: Coil',
+   ep_base:25, rounds_hint:'Open ended',
+   harvest_label:'Legacy Shards', harvest_per:'1 standard · 2 from Coil', harvest_threshold:null, harvest_threshold_reward:'',
+   harvest_remainder_ep:5,
+   special:'Kill order: Healer → Support → Bruiser → Striker. No Heat Strain this trial. Lineage Trait on survival.',
+   ep_award:'5 EP per Legacy Shard. Lineage Trait: Fire Immunity + CON+2 awarded to all T4 survivors.'},
+];
+
+const CONDITIONS = ['Poisoned','Blinded','Frightened','Restrained','Stunned','Incapacitated','Prone','Grappled','Rattled','Burning'];
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let GM = {
+  // Setup
+  roomCode: '',
+  planet: 'pyrotheon',
+  // Session
+  currentTrialIdx: null,   // 0–3
+  round: 0,
+  trialActive: false,
+  adaptWindowOpen: false,
+  // Players: { [playerId]: { name, hp, maxHp, heatStrain, conditions:[], resourceTokens, epBalance } }
+  players: {},
+  // NPC tracker (local only)
+  npcs: [],
+  // Harvest queue: [ { id, playerId, playerName, trial, ts, status } ]
+  harvestQueue: [],
+  platformDestroyQueue: [],
+  damageQueue: [],     // { id, playerId, playerName, targetId, targetType, targetName, amount, ts }
+  // Combat log
+  log: [],
+  // UI
+  tab: 'setup',          // setup | trial | npcs | log
+  expandedPlayer: null,
+  pollTimer: null,
+  scriptCard: 0,         // current card index within active trial script
+  scriptOpen: true,      // script panel expanded/collapsed
+};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function roomBase(){ return '/rooms/' + GM.roomCode; }
+function log(msg, type='info'){
+  GM.log.unshift({msg, type, ts: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})});
+  if(GM.log.length>120) GM.log.pop();
+}
+function fmtHp(hp, max){
+  const pct = Math.max(0,Math.min(1,hp/max));
+  const col = pct>.5?'var(--gn)':pct>.25?'#f5a623':'var(--rd)';
+  return {pct, col};
+}
+function currentTrial(){ return GM.currentTrialIdx!==null ? TRIALS[GM.currentTrialIdx] : null; }
+function e(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── FIREBASE SYNC ──────────────────────────────────────────────────────────────
+async function pushMeta(){
+  const t = currentTrial();
+  await fbPatch(roomBase()+'/meta', {
+    planet: GM.planet,
+    currentTrial: t ? t.id : null,
+    trialLabel: t ? t.label : null,
+    round: GM.round,
+    adaptationWindowOpen: GM.adaptWindowOpen,
+  });
+}
+
+function statusTier(hp, maxHp){
+  const pct = hp / maxHp;
+  if(pct > 0.6) return 'Healthy';
+  if(pct > 0.3) return 'Bloodied';
+  if(hp > 0)    return 'Critical';
+  return 'Dead';
+}
+
+async function pushNpcRoster(){
+  // Pushes NPC names + status tiers to Firebase so players can pick targets.
+  // HP is never sent — GM only.
+  const roster = {};
+  for(const npc of GM.npcs){
+    roster[npc.id] = { name: npc.name, statusTier: statusTier(npc.hp, npc.maxHp) };
+  }
+  // Also push connected players as valid targets
+  for(const [pid, p] of Object.entries(GM.players)){
+    roster[pid] = { name: p.name, statusTier: statusTier(p.hp, p.maxHp), isPlayer: true };
+  }
+  await fbWrite(roomBase()+'/targets', roster);
+}
+async function pushSignalStart(){
+  await fbWrite(roomBase()+'/signals/trialStart', Date.now());
+  await fbDelete(roomBase()+'/signals/trialEnd');
+}
+async function pushSignalEnd(){
+  await fbWrite(roomBase()+'/signals/trialEnd', Date.now());
+}
+async function pushPlayerCombat(pid){
+  const p = GM.players[pid]; if(!p) return;
+  await fbPatch(roomBase()+'/creatures/'+pid+'/combat', {
+    hp: p.hp,
+    maxHp: p.maxHp,
+    heatStrainStacks: p.heatStrain||0,
+    conditions: p.conditions||[],
+    resourceTokens: p.resourceTokens||0,
+    epBalance: p.epBalance||0,
+    lineageTrait: p.lineageTrait||null,
+    flaggedCorrection: false,
+  });
+}
+async function pushAllPlayerCombat(){
+  for(const pid of Object.keys(GM.players)) await pushPlayerCombat(pid);
+}
+
+// ── POLL (read harvest/platform requests + player buildSnapshots) ──────────────
+async function poll(){
+  if(!GM.roomCode || !FIREBASE_URL) return;
+  // Read harvest requests
+  const hq = await fbRead(roomBase()+'/harvestRequests');
+  if(hq){
+    const pending = Object.entries(hq).filter(([,v])=>v.status==='pending');
+    // Merge into local queue (avoid duplicates)
+    for(const [id,v] of pending){
+      if(!GM.harvestQueue.find(x=>x.id===id)){
+        GM.harvestQueue.push({...v,id});
+        log(`🍖 Harvest request: ${v.playerName||v.playerId}`, 'warn');
+      }
+    }
+  }
+  // Read platform destroy requests
+  const pq = await fbRead(roomBase()+'/platformDestroyRequests');
+  if(pq){
+    const pending = Object.entries(pq).filter(([,v])=>v.status==='pending');
+    for(const [id,v] of pending){
+      if(!GM.platformDestroyQueue.find(x=>x.id===id)){
+        GM.platformDestroyQueue.push({...v,id});
+        log(`💥 Platform Destroy request: ${v.playerName||v.playerId}`, 'warn');
+      }
+    }
+  }
+  // Read flagged corrections
+  for(const pid of Object.keys(GM.players)){
+    const combat = await fbRead(roomBase()+'/creatures/'+pid+'/combat');
+    if(combat?.flaggedCorrection){
+      log(`⚑ HP correction flagged by ${GM.players[pid]?.name||pid}`, 'warn');
+      // Clear the flag
+      await fbPatch(roomBase()+'/creatures/'+pid+'/combat', {flaggedCorrection:false});
+    }
+  }
+  // Read damage requests
+  const dq = await fbRead(roomBase()+'/damageRequests');
+  if(dq){
+    const pending = Object.entries(dq).filter(([,v])=>v.status==='pending');
+    for(const [id,v] of pending){
+      if(!GM.damageQueue.find(x=>x.id===id)){
+        GM.damageQueue.push({...v,id});
+        log(`⚔ Damage request: ${v.playerName} → ${v.targetName} for ${v.amount}`, 'warn');
+      }
+    }
+  }
+  render();
+}
+function startPolling(){
+  if(GM.pollTimer) clearInterval(GM.pollTimer);
+  poll();
+  GM.pollTimer = setInterval(poll, 5000);
+}
+
+// ── ROOM SETUP ─────────────────────────────────────────────────────────────────
+async function createRoom(){
+  const code = GM.roomCode.trim().toUpperCase();
+  if(!code){ log('Enter a room code first.','warn'); render(); return; }
+  GM.roomCode = code;
+  await fbWrite(roomBase()+'/meta', {
+    planet: GM.planet,
+    currentTrial: null,
+    trialLabel: null,
+    round: 0,
+    adaptationWindowOpen: false,
+    createdAt: Date.now(),
+  });
+  await fbDelete(roomBase()+'/signals');
+  await fbDelete(roomBase()+'/harvestRequests');
+  await fbDelete(roomBase()+'/platformDestroyRequests');
+  log(`Room ${code} created on Firebase.`, 'good');
+  log(`Player link: ${location.origin}${location.pathname.replace('pyrotheon-gm.html','')}Definitive_Build.html?room=${code}`, 'good');
+  GM.tab = 'trial';
+  startPolling();
+  render();
+}
+
+// ── PLAYER MANAGEMENT ──────────────────────────────────────────────────────────
+function addPlayerManual(name, maxHp){
+  const id = 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  GM.players[id] = {name, hp:maxHp, maxHp, heatStrain:0, conditions:[], resourceTokens:0, epBalance:150};
+  log(`Added player: ${name} (${maxHp} HP)`);
+  render();
+}
+function removePlayer(pid){
+  delete GM.players[pid];
+  if(GM.expandedPlayer===pid) GM.expandedPlayer=null;
+  render();
+}
+
+// ── TRIAL CONTROL ──────────────────────────────────────────────────────────────
+async function launchTrial(idx){
+  GM.currentTrialIdx = idx;
+  GM.round = 1;
+  GM.trialActive = true;
+  GM.adaptWindowOpen = false;
+  GM.scriptCard = 0;
+  GM.scriptOpen = true;
+  // Load NPC presets (local)
+  const t = TRIALS[idx];
+  GM.npcs = JSON.parse(JSON.stringify(NPC_PRESETS[t.id]||[]));
+  GM.harvestQueue = [];
+  GM.platformDestroyQueue = [];
+  GM.damageQueue = [];
+  // Reset resource tokens for all players
+  for(const p of Object.values(GM.players)){ p.resourceTokens=0; p.conditions=[]; }
+  await pushMeta();
+  await pushSignalStart();
+  await pushAllPlayerCombat();
+  await pushNpcRoster();
+  log(`═══ ${t.label} LAUNCHED ═══`,'header');
+  log(`Round ${GM.round} | ${t.rounds_hint}`);
+  render();
+}
+async function endTrial(){
+  GM.trialActive = false;
+  await pushSignalEnd();
+  await pushMeta();
+  log(`═══ TRIAL ENDED ═══`,'header');
+  render();
+}
+async function nextRound(){
+  GM.round++;
+  // T3 auto Heat Strain
+  if(GM.currentTrialIdx===2){
+    for(const p of Object.values(GM.players)){
+      p.heatStrain = (p.heatStrain||0)+1;
+      log(`🔥 ${p.name}: Heat Strain → ${p.heatStrain}`, 'warn');
+    }
+    await pushAllPlayerCombat();
+  }
+  await pushMeta();
+  log(`── Round ${GM.round} ──`,'header');
+  render();
+}
+async function openAdaptWindow(){
+  GM.adaptWindowOpen = true;
+  await pushMeta();
+  log('Adaptation window OPEN','good');
+  render();
+}
+async function closeAdaptWindow(){
+  GM.adaptWindowOpen = false;
+  await pushMeta();
+  log('Adaptation window CLOSED');
+  render();
+}
+
+// ── HARVEST CONFIRM/REJECT ─────────────────────────────────────────────────────
+async function confirmHarvest(reqId){
+  const req = GM.harvestQueue.find(x=>x.id===reqId); if(!req) return;
+  const pid = req.playerId;
+  const p = GM.players[pid];
+  if(p){
+    const t = currentTrial();
+    const amount = (GM.currentTrialIdx===0) ? 2 : 1; // T1=2 Food Tokens, T2-4=1 each
+    p.resourceTokens = (p.resourceTokens||0) + amount;
+    await pushPlayerCombat(pid);
+    log(`✓ Harvest confirmed: ${req.playerName} +${amount} ${t?.harvest_label||'token(s)'} (now ${p.resourceTokens})`,'good');
+  }
+  // Mark done in Firebase + remove from local queue
+  await fbPatch(roomBase()+'/harvestRequests/'+reqId, {status:'confirmed'});
+  GM.harvestQueue = GM.harvestQueue.filter(x=>x.id!==reqId);
+  render();
+}
+async function rejectHarvest(reqId){
+  const req = GM.harvestQueue.find(x=>x.id===reqId); if(!req) return;
+  await fbPatch(roomBase()+'/harvestRequests/'+reqId, {status:'rejected'});
+  GM.harvestQueue = GM.harvestQueue.filter(x=>x.id!==reqId);
+  log(`✗ Harvest rejected: ${req.playerName}`,'warn');
+  render();
+}
+async function confirmPlatformDestroy(reqId){
+  const req = GM.platformDestroyQueue.find(x=>x.id===reqId); if(!req) return;
+  const pid = req.playerId;
+  const p = GM.players[pid];
+  if(p){
+    p.resourceTokens = (p.resourceTokens||0)+2; // T3: 2 Ember Marks per platform
+    await pushPlayerCombat(pid);
+    log(`✓ Platform Destroyed: ${req.playerName} +2 Ember Marks (now ${p.resourceTokens})`,'good');
+  }
+  await fbPatch(roomBase()+'/platformDestroyRequests/'+reqId, {status:'confirmed'});
+  GM.platformDestroyQueue = GM.platformDestroyQueue.filter(x=>x.id!==reqId);
+  render();
+}
+async function rejectPlatformDestroy(reqId){
+  const req = GM.platformDestroyQueue.find(x=>x.id===reqId); if(!req) return;
+  await fbPatch(roomBase()+'/platformDestroyRequests/'+reqId, {status:'rejected'});
+  GM.platformDestroyQueue = GM.platformDestroyQueue.filter(x=>x.id!==reqId);
+  render();
+}
+
+async function confirmDamage(reqId){
+  const req = GM.damageQueue.find(x=>x.id===reqId); if(!req) return;
+  const {targetId, targetType, targetName, amount} = req;
+  if(targetType==='npc'){
+    const npc = GM.npcs.find(x=>x.id===targetId);
+    if(npc){
+      npc.hp = Math.max(0, npc.hp - amount);
+      log(`⚔ ${req.playerName} → ${targetName}: -${amount} HP (now ${npc.hp}/${npc.maxHp})`,'good');
+      // Push updated statusTier — never raw HP
+      await fbPatch(roomBase()+'/targets/'+targetId, { statusTier: statusTier(npc.hp, npc.maxHp) });
+    }
+  } else if(targetType==='player'){
+    const p = GM.players[targetId];
+    if(p){
+      p.hp = Math.max(0, p.hp - amount);
+      await pushPlayerCombat(targetId);
+      await fbPatch(roomBase()+'/targets/'+targetId, { statusTier: statusTier(p.hp, p.maxHp) });
+      log(`⚔ ${req.playerName} → ${targetName}: -${amount} HP (now ${p.hp}/${p.maxHp})`,'good');
+    }
+  }
+  await fbPatch(roomBase()+'/damageRequests/'+reqId, {status:'confirmed'});
+  GM.damageQueue = GM.damageQueue.filter(x=>x.id!==reqId);
+  render();
+}
+async function rejectDamage(reqId){
+  const req = GM.damageQueue.find(x=>x.id===reqId); if(!req) return;
+  await fbPatch(roomBase()+'/damageRequests/'+reqId, {status:'rejected'});
+  GM.damageQueue = GM.damageQueue.filter(x=>x.id!==reqId);
+  log(`✗ Damage rejected: ${req.playerName} → ${req.targetName}`,'warn');
+  render();
+}
+async function awardEpAll(amount, reason){
+  for(const [pid,p] of Object.entries(GM.players)){
+    p.epBalance = (p.epBalance||150)+amount;
+    await pushPlayerCombat(pid);
+  }
+  log(`+${amount} EP to all — ${reason}`,'good');
+  render();
+}
+async function awardEpPlayer(pid, amount, reason){
+  const p = GM.players[pid]; if(!p) return;
+  p.epBalance = (p.epBalance||150)+amount;
+  await pushPlayerCombat(pid);
+  log(`+${amount} EP → ${p.name}${reason?' — '+reason:''}`,'good');
+  render();
+}
+async function awardTokensToEp(){
+  // Convert remaining resource tokens to EP at 5EP each, then clear
+  const t = currentTrial(); if(!t) return;
+  for(const [pid,p] of Object.entries(GM.players)){
+    const tokens = p.resourceTokens||0;
+    if(tokens>0){
+      const ep = tokens*t.harvest_remainder_ep;
+      p.epBalance = (p.epBalance||150)+ep;
+      p.resourceTokens = 0;
+      await pushPlayerCombat(pid);
+      log(`${p.name}: ${tokens} tokens → +${ep} EP`,'good');
+    }
+  }
+  render();
+}
+async function awardHpRefresh(){
+  // Check threshold and apply refresh
+  const t = currentTrial(); if(!t||!t.harvest_threshold) return;
+  for(const [pid,p] of Object.entries(GM.players)){
+    const tokens = p.resourceTokens||0;
+    if(tokens>=t.harvest_threshold){
+      p.hp = p.maxHp;
+      await pushPlayerCombat(pid);
+      log(`💚 ${p.name}: HP refreshed to ${p.maxHp} (${tokens} ${t.harvest_label})`,'good');
+    } else {
+      log(`${p.name}: only ${tokens} ${t.harvest_label} — no HP refresh`,'warn');
+    }
+  }
+  render();
+}
+async function awardLineageTrait(){
+  for(const [pid,p] of Object.entries(GM.players)){
+    p.lineageTrait = 'Fire Immunity + CON+2';
+    await pushPlayerCombat(pid);
+  }
+  log('🔥 Lineage Trait awarded: Fire Immunity + CON+2','good');
+  render();
+}
+async function awardLeviathanKill(){
+  await awardEpAll(35, 'Leviathan kill');
+}
+
+// ── HP / CONDITION CONTROLS ────────────────────────────────────────────────────
+async function setPlayerHp(pid, delta){
+  const p = GM.players[pid]; if(!p) return;
+  p.hp = Math.max(0, Math.min(p.maxHp, (p.hp||p.maxHp)+delta));
+  await pushPlayerCombat(pid);
+  render();
+}
+async function setPlayerHpAbs(pid, val){
+  const p = GM.players[pid]; if(!p) return;
+  p.hp = Math.max(0, Math.min(p.maxHp, val));
+  await pushPlayerCombat(pid);
+  render();
+}
+async function setHeatStrain(pid, delta){
+  const p = GM.players[pid]; if(!p) return;
+  p.heatStrain = Math.max(0, (p.heatStrain||0)+delta);
+  await pushPlayerCombat(pid);
+  render();
+}
+async function toggleCondition(pid, cond){
+  const p = GM.players[pid]; if(!p) return;
+  const c = p.conditions||[];
+  p.conditions = c.includes(cond) ? c.filter(x=>x!==cond) : [...c, cond];
+  await pushPlayerCombat(pid);
+  render();
+}
+async function npcHp(npcId, delta){
+  const n = GM.npcs.find(x=>x.id===npcId); if(!n) return;
+  n.hp = Math.max(0, Math.min(n.maxHp, n.hp+delta));
+  if(GM.roomCode && FIREBASE_URL)
+    await fbPatch(roomBase()+'/targets/'+npcId, { statusTier: statusTier(n.hp, n.maxHp) });
+  render();
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+function render(){
+  document.getElementById('app').innerHTML = buildHTML();
+}
+
+function buildHTML(){
+  if(GM.tab==='setup' && !GM.roomCode) return renderSetup();
+
+  const t = currentTrial();
+  const playerCount = Object.keys(GM.players).length;
+
+  return `
+  <div class="hdr">
+    <h1>GM <span>WAR ROOM</span></h1>
+    <div class="hdr-sub">${GM.roomCode ? 'Room: '+GM.roomCode : 'No room'} · ${playerCount} player${playerCount!==1?'s':''} · ${GM.trialActive?(t?.shortLabel||'Trial active'):'Idle'}</div>
+  </div>
+  <div class="tabs">
+    <button class="tab ${GM.tab==='trial'?'active':''}" data-tab="trial">Trial${GM.trialActive?' ●':''}</button>
+    <button class="tab ${GM.tab==='players'?'active':''}" data-tab="players">Players${(GM.harvestQueue.length+GM.platformDestroyQueue.length+GM.damageQueue.length)>0?' ⚠'+(GM.harvestQueue.length+GM.platformDestroyQueue.length+GM.damageQueue.length):''}</button>
+    <button class="tab ${GM.tab==='npcs'?'active':''}" data-tab="npcs">NPCs</button>
+    <button class="tab ${GM.tab==='log'?'active':''}" data-tab="log">Log</button>
+  </div>
+  ${GM.tab==='trial'   ? renderTrialTab(t)   : ''}
+  ${GM.tab==='players' ? renderPlayersTab(t) : ''}
+  ${GM.tab==='npcs'    ? renderNpcsTab(t)    : ''}
+  ${GM.tab==='log'     ? renderLogTab()      : ''}
+  `;
+}
+
+function renderSetup(){
+  return `<div class="setup-wrap">
+    <div style="font-size:2rem">⚡</div>
+    <div class="setup-title">GM WAR ROOM</div>
+    <div style="font-size:.76rem;color:var(--dm);text-align:center;max-width:300px">Create a room to start. Share the player link and you're running.</div>
+    <div class="setup-field">
+      <label>ROOM CODE</label>
+      <input id="setup-code" type="text" maxlength="8" placeholder="e.g. PYRO01" value="${GM.roomCode}"
+        style="text-transform:uppercase;letter-spacing:.18em;text-align:center"
+        oninput="GM.roomCode=this.value.toUpperCase()"/>
+    </div>
+    <div class="setup-field">
+      <label>PLANET</label>
+      <select id="setup-planet" style="width:100%;padding:12px 14px;background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;color:var(--tx);font-size:.85rem;outline:none" onchange="GM.planet=this.value">
+        <option value="pyrotheon">Pyrotheon</option>
+        <option value="glacara" disabled>Glacara (locked)</option>
+        <option value="verath" disabled>Verath (locked)</option>
+        <option value="khara" disabled>Khara (locked)</option>
+      </select>
+    </div>
+    ${!FIREBASE_URL?`<div style="padding:10px 14px;background:rgba(255,58,92,.07);border:1px solid rgba(255,58,92,.2);border-radius:8px;font-size:.64rem;color:var(--rd);max-width:360px;text-align:center">⚠ FIREBASE_URL is empty. Set it at the top of the script to enable live sync.</div>`:''}
+    <button class="btn btn-ac" style="width:100%;max-width:360px;padding:14px;font-size:.72rem" data-createroom="1">CREATE ROOM →</button>
+  </div>`;
+}
+
+function renderScriptPanel(t){
+  if(!t) return '';
+  const script = TRIAL_SCRIPT[t.id] || [];
+  if(script.length===0) return '';
+  const idx = Math.max(0, Math.min(GM.scriptCard, script.length-1));
+  const card = script[idx];
+  const TYPE_STYLE = {
+    read:    {icon:'📖', label:'READ ALOUD',  border:'rgba(255,107,53,.4)',  bg:'rgba(255,107,53,.06)',  col:'#ff6b35'},
+    mechanic:{icon:'⚙',  label:'MECHANIC',    border:'rgba(255,170,0,.35)',   bg:'rgba(255,170,0,.05)',   col:'#ffaa00'},
+    npc:     {icon:'🦎', label:'NPC',         border:'rgba(255,58,92,.35)',   bg:'rgba(255,58,92,.05)',   col:'#ff3a5c'},
+    event:   {icon:'⚡', label:'EVENT',       border:'rgba(204,68,255,.35)',  bg:'rgba(204,68,255,.05)',  col:'#cc44ff'},
+    award:   {icon:'🪙', label:'AWARDS',      border:'rgba(255,215,0,.35)',   bg:'rgba(255,215,0,.05)',   col:'#ffd700'},
+    warning: {icon:'⚠',  label:'IMPORTANT',   border:'rgba(255,58,92,.5)',    bg:'rgba(255,58,92,.08)',   col:'#ff3a5c'},
+  };
+  const st = TYPE_STYLE[card.type] || TYPE_STYLE.mechanic;
+  const isRead = card.type === 'read';
+  const progress = `${idx+1} / ${script.length}`;
+
+  return `<div style="margin:10px 14px 0;border:1px solid ${st.border};border-radius:12px;background:${st.bg};overflow:hidden">
+    <!-- Script header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid ${st.border}">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="font-size:.9rem">${st.icon}</span>
+        <span style="font-family:'Orbitron',monospace;font-size:.44rem;font-weight:700;color:${st.col};letter-spacing:.12em">${st.label}</span>
+        <span style="font-size:.62rem;color:var(--dm)">${card.title}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:'Orbitron',monospace;font-size:.42rem;color:var(--dm)">${progress}</span>
+        <button data-scriptoggle="1" style="background:none;border:none;color:var(--dm);font-size:.7rem;cursor:pointer;padding:0 4px">${GM.scriptOpen?'▲':'▼'}</button>
+      </div>
+    </div>
+    ${GM.scriptOpen?`
+    <!-- Card body -->
+    <div style="padding:14px 14px 10px">
+      <!-- Main text — large if read-aloud -->
+      <div style="font-size:${isRead?'.85rem':'.74rem'};line-height:${isRead?'1.8':'1.65'};color:${isRead?'var(--tx)':'var(--tx)'};white-space:pre-wrap;font-style:${isRead?'italic':'normal'};font-family:${isRead?"'Rajdhani',sans-serif":"inherit"}">${e(card.body)}</div>
+      <!-- GM note (smaller, muted) -->
+      ${card.gm?`<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.25);border-left:2px solid var(--dm);border-radius:0 6px 6px 0">
+        <div style="font-family:'Orbitron',monospace;font-size:.4rem;color:var(--dm);letter-spacing:.1em;margin-bottom:4px">GM NOTE</div>
+        <div style="font-size:.66rem;color:var(--dm);line-height:1.6;white-space:pre-wrap">${e(card.gm)}</div>
+      </div>`:''}
+    </div>
+    <!-- Navigation -->
+    <div style="display:flex;gap:6px;padding:0 14px 12px">
+      <button data-scriptprev="1" ${idx===0?'disabled':''} style="flex:1;padding:8px;font-family:'Orbitron',monospace;font-size:.48rem;font-weight:700;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:${idx===0?'var(--bdr)':'var(--dm)'};cursor:${idx===0?'default':'pointer'}">← PREV</button>
+      <button data-scriptnext="1" ${idx===script.length-1?'disabled':''} style="flex:1;padding:8px;font-family:'Orbitron',monospace;font-size:.48rem;font-weight:700;background:${idx<script.length-1?st.col:'var(--sur)'};border:1px solid ${idx<script.length-1?st.col:'var(--bdr)'};border-radius:7px;color:${idx<script.length-1?'#fff':'var(--bdr)'};cursor:${idx===script.length-1?'default':'pointer'}">NEXT →</button>
+    </div>`:''}
+  </div>`;
+}
+
+function renderTrialTab(t){
+  const shareUrl = `${location.origin}${location.pathname.replace('pyrotheon-gm.html','Definitive_Build.html')}?room=${GM.roomCode}`;
+  return `
+  ${renderScriptPanel(t)}
+
+  <!-- Player link -->
+  <div class="panel">
+    <div class="ph"><div class="ph-title">PLAYER LINK</div></div>
+    <div class="pb" style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:.66rem;color:var(--dm);word-break:break-all;padding:8px 10px;background:var(--sur);border-radius:6px;border:1px solid var(--bdr)">${shareUrl}</div>
+      <button class="btn btn-dm btn-sm" data-copylink="${e(shareUrl)}">📋 Copy Link</button>
+    </div>
+  </div>
+
+  <!-- Trial selector -->
+  <div class="panel">
+    <div class="ph"><div class="ph-title">SELECT TRIAL</div></div>
+    <div class="pb" style="display:flex;gap:6px;flex-wrap:wrap">
+      ${TRIALS.map((tr,i)=>`<button class="trial-btn${GM.currentTrialIdx===i?' active':''}" data-selecttrial="${i}">${tr.shortLabel}</button>`).join('')}
+    </div>
+  </div>
+
+  <!-- Round + trial controls -->
+  ${t?`<div class="panel">
+    <div class="ph">
+      <div class="ph-title">${e(t.label)}</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${GM.trialActive
+          ?`<button class="btn btn-rd btn-sm" data-endtrial="1">End Trial</button>`
+          :`<button class="btn btn-gn btn-sm" data-launchtrial="${GM.currentTrialIdx}">▶ Launch</button>`}
+      </div>
+    </div>
+    <div class="pb" style="display:flex;flex-direction:column;gap:12px">
+      <!-- Round counter -->
+      <div style="text-align:center;padding:10px 0">
+        <div style="font-family:'Orbitron',monospace;font-size:.44rem;color:var(--dm);letter-spacing:.15em;margin-bottom:4px">ROUND</div>
+        <div class="round-big">${GM.round||'—'}</div>
+        ${GM.trialActive?`<div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
+          <button class="btn btn-ac btn-sm" data-nextround="1">Next Round →</button>
+        </div>`:''}
+      </div>
+      <!-- Trial info -->
+      <div style="font-size:.64rem;color:var(--dm);line-height:1.7;padding:8px 10px;background:var(--sur);border-radius:8px;border:1px solid var(--bdr)">
+        <div><strong style="color:var(--tx)">Harvest:</strong> ${t.harvest_label} · ${t.harvest_per}</div>
+        ${t.harvest_threshold?`<div><strong style="color:var(--tx)">Threshold:</strong> ${t.harvest_threshold} → ${t.harvest_threshold_reward}</div>`:''}
+        <div><strong style="color:var(--tx)">EP Award:</strong> ${t.ep_award}</div>
+        <div style="margin-top:4px;color:var(--gr)">⚠ ${t.special}</div>
+      </div>
+      <!-- End-of-trial award buttons -->
+      <div style="font-family:'Orbitron',monospace;font-size:.44rem;color:var(--dm);letter-spacing:.12em;margin-bottom:4px">END-OF-TRIAL AWARDS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${t.harvest_threshold?`<button class="btn btn-gn btn-sm" data-hprefresh="1">💚 Check HP Refresh</button>`:''}
+        <button class="btn btn-gr btn-sm" data-tokenstoep="1">🪙 Tokens → EP</button>
+        ${GM.currentTrialIdx===2?`<button class="btn btn-gr btn-sm" data-leviathankill="1">🦎 Leviathan Kill (+35 EP all)</button>`:''}
+        ${GM.currentTrialIdx===3?`<button class="btn btn-gn btn-sm" data-lineagetrait="1">🔥 Award Lineage Trait</button>`:''}
+        <button class="btn btn-dm btn-sm" data-adaptopen="1">${GM.adaptWindowOpen?'⬛ Close Adapt Window':'🧬 Open Adapt Window'}</button>
+      </div>
+    </div>
+  </div>`:`<div style="padding:20px 14px;text-align:center;color:var(--dm);font-size:.74rem">Select a trial above to get started.</div>`}
+  `;
+}
+
+function renderPlayersTab(t){
+  const pids = Object.keys(GM.players);
+  const pendingH = GM.harvestQueue;
+  const pendingP = GM.platformDestroyQueue;
+  const pendingD = GM.damageQueue;
+  return `
+  <!-- Add player -->
+  <div class="panel">
+    <div class="ph"><div class="ph-title">ADD PLAYER</div></div>
+    <div class="pb" style="display:flex;gap:8px">
+      <input id="new-p-name" placeholder="Name" style="flex:2;padding:7px 10px;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--tx);font-size:.78rem;outline:none"/>
+      <input id="new-p-hp" placeholder="Max HP" type="number" min="1" max="999" style="flex:1;padding:7px 10px;background:var(--sur);border:1px solid var(--bdr);border-radius:7px;color:var(--tx);font-size:.78rem;outline:none"/>
+      <button class="btn btn-ac btn-sm" data-addplayer="1">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Harvest queue -->
+  ${pendingH.length>0||pendingP.length>0||pendingD.length>0?`<div class="panel">
+    <div class="ph"><div class="ph-title" style="color:var(--gr)">⚠ PENDING REQUESTS (${pendingH.length+pendingP.length+pendingD.length})</div></div>
+    <div class="pb" style="display:flex;flex-direction:column;gap:6px">
+      ${pendingH.map(req=>`<div class="hq-item">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--tx)">🍖 Harvest — ${e(req.playerName||req.playerId)}</div>
+          <div style="font-size:.58rem;color:var(--dm)">${t?.harvest_label||'Token'} · ${t?.harvest_per||''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-gn btn-sm" data-confirmharvest="${req.id}">✓ Confirm</button>
+          <button class="btn btn-rd btn-sm" data-rejectharvest="${req.id}">✗ Reject</button>
+        </div>
+      </div>`).join('')}
+      ${pendingP.map(req=>`<div class="hq-item">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--tx)">💥 Platform Destroy — ${e(req.playerName||req.playerId)}</div>
+          <div style="font-size:.58rem;color:var(--dm)">+2 Ember Marks if confirmed</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-gn btn-sm" data-confirmpd="${req.id}">✓ Confirm</button>
+          <button class="btn btn-rd btn-sm" data-rejectpd="${req.id}">✗ Reject</button>
+        </div>
+      </div>`).join('')}
+      ${pendingD.map(req=>`<div class="hq-item">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--tx)">⚔ Attack — ${e(req.playerName||req.playerId)} → ${e(req.targetName)}</div>
+          <div style="font-size:.58rem;color:var(--dm)">${req.amount} damage · ${req.targetType==='npc'?'NPC':'Player'}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-gn btn-sm" data-confirmdr="${req.id}">✓ Apply</button>
+          <button class="btn btn-rd btn-sm" data-rejectdr="${req.id}">✗ Reject</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`:''}
+
+  <!-- Player cards -->
+  ${pids.length===0?`<div style="padding:24px;text-align:center;color:var(--dm);font-size:.74rem">No players added yet. Add them above or they'll appear when they join via the player link.</div>`:''}
+  <div style="padding:0 14px">
+    ${pids.map(pid=>{
+      const p = GM.players[pid];
+      const {pct,col} = fmtHp(p.hp, p.maxHp);
+      const expanded = GM.expandedPlayer===pid;
+      const hs = p.heatStrain||0;
+      const hsCol = hs>=5?'var(--rd)':hs>=3?'#f5a623':'var(--ac)';
+      return `<div class="p-card">
+        <!-- Header row -->
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer" data-expandplayer="${pid}">
+          <div style="flex:1">
+            <div class="p-name">${e(p.name||'Unnamed')}</div>
+            <div class="p-sub">${p.maxHp} max HP · ${p.resourceTokens||0} ${t?.harvest_label||'tokens'} · ${p.epBalance||0} EP</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:900;color:${col}">${p.hp}</div>
+            <div style="font-size:.54rem;color:var(--dm)">/ ${p.maxHp}</div>
+          </div>
+          <div style="font-size:.7rem;color:var(--dm)">${expanded?'▲':'▼'}</div>
+        </div>
+        <!-- HP bar -->
+        <div class="hp-bar" style="margin-top:6px">
+          <div class="hp-fill" style="width:${Math.round(pct*100)}%;background:${col}"></div>
+        </div>
+        <!-- Conditions summary -->
+        ${(p.conditions||[]).length>0?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${(p.conditions||[]).map(c=>`<span class="cond-chip">${c}</span>`).join('')}</div>`:''}
+        <!-- Expanded controls -->
+        ${expanded?`<div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;padding-top:10px;border-top:1px solid var(--bdr)">
+          <!-- HP controls -->
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.42rem;color:var(--dm);letter-spacing:.1em;margin-bottom:6px">HIT POINTS</div>
+            <div class="hp-ctrl">
+              <button class="btn btn-rd btn-sm" data-phpdelta="${pid}:-5">-5</button>
+              <button class="btn btn-rd btn-sm" data-phpdelta="${pid}:-1">-1</button>
+              <span class="hp-num" style="color:${col}">${p.hp}</span>
+              <button class="btn btn-gn btn-sm" data-phpdelta="${pid}:+1">+1</button>
+              <button class="btn btn-gn btn-sm" data-phpdelta="${pid}:+5">+5</button>
+              <button class="btn btn-gn btn-sm" data-phpfull="${pid}">Full</button>
+            </div>
+          </div>
+          <!-- Heat Strain -->
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.42rem;color:${hsCol};letter-spacing:.1em;margin-bottom:6px">HEAT STRAIN: ${hs}${hs>=3?' ⚠':''}</div>
+            <div style="display:flex;gap:5px;align-items:center">
+              <button class="btn btn-dm btn-sm" data-phs="${pid}:-1">-1</button>
+              <div style="display:flex;gap:3px">${Array.from({length:6},(_,i)=>`<div style="width:14px;height:14px;border-radius:50%;border:1.5px solid ${i<hs?hsCol:'var(--bdr)'};background:${i<hs?hsCol+'44':'transparent'}"></div>`).join('')}</div>
+              <button class="btn btn-rd btn-sm" data-phs="${pid}:+1">+1</button>
+            </div>
+          </div>
+          <!-- Tokens -->
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.42rem;color:var(--dm);letter-spacing:.1em;margin-bottom:6px">${(t?.harvest_label||'TOKENS').toUpperCase()}</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="btn btn-dm btn-sm" data-ptokens="${pid}:-1">-1</button>
+              <span style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:900;color:var(--ac);min-width:28px;text-align:center">${p.resourceTokens||0}</span>
+              <button class="btn btn-gr btn-sm" data-ptokens="${pid}:+1">+1</button>
+              <button class="btn btn-gr btn-sm" data-ptokens="${pid}:+2">+2</button>
+            </div>
+          </div>
+          <!-- EP -->
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.42rem;color:var(--dm);letter-spacing:.1em;margin-bottom:6px">EP BALANCE</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="btn btn-dm btn-sm" data-pep="${pid}:-5">-5</button>
+              <span style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:900;color:var(--gd);min-width:36px;text-align:center">${p.epBalance||0}</span>
+              <button class="btn btn-gr btn-sm" data-pep="${pid}:+5">+5</button>
+              <button class="btn btn-gr btn-sm" data-pep="${pid}:+10">+10</button>
+              <button class="btn btn-gr btn-sm" data-pep="${pid}:+25">+25</button>
+            </div>
+          </div>
+          <!-- Conditions -->
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.42rem;color:var(--dm);letter-spacing:.1em;margin-bottom:6px">CONDITIONS</div>
+            <div class="cond-grid">
+              ${CONDITIONS.map(c=>`<button class="cond-toggle${(p.conditions||[]).includes(c)?' on':''}" data-pcond="${pid}:${c}">${c}</button>`).join('')}
+            </div>
+          </div>
+          <!-- Remove -->
+          <button class="btn btn-rd btn-sm" style="align-self:flex-start" data-removeplayer="${pid}">Remove Player</button>
+        </div>`:''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderNpcsTab(t){
+  const trialNpcs = GM.npcs;
+  return `
+  <div style="padding:12px 14px">
+    <div style="font-family:'Orbitron',monospace;font-size:.46rem;color:var(--dm);letter-spacing:.14em;margin-bottom:10px">${t?e(t.label.toUpperCase()):' NO TRIAL ACTIVE'} — NPC TRACKER</div>
+    ${!t?`<div style="color:var(--dm);font-size:.74rem">Launch a trial first to see NPC presets.</div>`:''}
+    ${trialNpcs.length===0&&t?`<div style="color:var(--dm);font-size:.74rem">No NPC presets for this trial.</div>`:''}
+    ${trialNpcs.map(npc=>{
+      const {pct,col} = fmtHp(npc.hp, npc.maxHp);
+      const dead = npc.hp<=0;
+      return `<div class="npc-card" style="opacity:${dead?.5:1}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div style="flex:1">
+            <div class="npc-name">${dead?'☠ ':''}${e(npc.name)}</div>
+            <div class="npc-role">${e(npc.role)}</div>
+            <div style="font-size:.58rem;color:var(--dm);margin-bottom:6px">AC ${npc.ac} · Init ${npc.init} · ${e(npc.note||'')}</div>
+          </div>
+          <div style="text-align:right;min-width:52px">
+            <div style="font-family:'Orbitron',monospace;font-size:.9rem;font-weight:900;color:${col}">${npc.hp}</div>
+            <div style="font-size:.54rem;color:var(--dm)">/ ${npc.maxHp}</div>
+          </div>
+        </div>
+        <div class="hp-bar" style="margin-bottom:6px">
+          <div class="hp-fill" style="width:${Math.round(pct*100)}%;background:${col}"></div>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-rd btn-sm" data-npchp="${npc.id}:-10">-10</button>
+          <button class="btn btn-rd btn-sm" data-npchp="${npc.id}:-5">-5</button>
+          <button class="btn btn-rd btn-sm" data-npchp="${npc.id}:-1">-1</button>
+          <button class="btn btn-gn btn-sm" data-npchp="${npc.id}:+5">+5</button>
+          <button class="btn btn-gn btn-sm" data-npchp="${npc.id}:+20">+20</button>
+          <button class="btn btn-gn btn-sm" data-npchpfull="${npc.id}">Full</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderLogTab(){
+  return `<div style="padding:12px 14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-family:'Orbitron',monospace;font-size:.46rem;color:var(--dm);letter-spacing:.14em">COMBAT LOG</div>
+      <button class="btn btn-dm btn-sm" data-clearlog="1">Clear</button>
+    </div>
+    <div style="max-height:70vh;overflow-y:auto">
+      ${GM.log.length===0?`<div style="color:var(--dm);font-size:.7rem">No log entries yet.</div>`:''}
+      ${GM.log.map(e=>`<div class="log-entry ${e.type}"><span style="color:var(--bdr);margin-right:6px">${e.ts}</span>${e.msg}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── CLICK HANDLER ──────────────────────────────────────────────────────────────
+document.addEventListener('click', function(ev){
+  const t = ev.target.closest('[data-tab],[data-createroom],[data-launchtrial],[data-endtrial],[data-nextround],[data-adaptopen],[data-hprefresh],[data-tokenstoep],[data-leviathankill],[data-lineagetrait],[data-addplayer],[data-removeplayer],[data-expandplayer],[data-phpdelta],[data-phpfull],[data-phs],[data-ptokens],[data-pep],[data-pcond],[data-npchp],[data-npchpfull],[data-confirmharvest],[data-rejectharvest],[data-confirmpd],[data-rejectpd],[data-confirmdr],[data-rejectdr],[data-selecttrial],[data-copylink],[data-clearlog],[data-scriptnext],[data-scriptprev],[data-scriptoggle]');
+  if(!t) return;
+
+  if(t.dataset.tab){ GM.tab=t.dataset.tab; render(); return; }
+  if(t.dataset.createroom){ createRoom(); return; }
+  if(t.dataset.selecttrial){ GM.currentTrialIdx=parseInt(t.dataset.selecttrial); GM.scriptCard=0; GM.scriptOpen=true; GM.tab='trial'; render(); return; }
+  if(t.dataset.launchtrial){ launchTrial(parseInt(t.dataset.launchtrial)); return; }
+  if(t.dataset.endtrial){ endTrial(); return; }
+  if(t.dataset.nextround){ nextRound(); return; }
+  if(t.dataset.adaptopen){ GM.adaptWindowOpen?closeAdaptWindow():openAdaptWindow(); return; }
+  if(t.dataset.hprefresh){ awardHpRefresh(); return; }
+  if(t.dataset.tokenstoep){ awardTokensToEp(); return; }
+  if(t.dataset.leviathankill){ awardLeviathanKill(); return; }
+  if(t.dataset.lineagetrait){ awardLineageTrait(); return; }
+  if(t.dataset.addplayer){
+    const name = document.getElementById('new-p-name')?.value?.trim();
+    const hp   = parseInt(document.getElementById('new-p-hp')?.value)||20;
+    if(name){ addPlayerManual(name, hp); } else { log('Enter a player name.','warn'); render(); }
+    return;
+  }
+  if(t.dataset.removeplayer){ removePlayer(t.dataset.removeplayer); return; }
+  if(t.dataset.expandplayer){
+    const pid=t.dataset.expandplayer;
+    GM.expandedPlayer = GM.expandedPlayer===pid?null:pid;
+    render(); return;
+  }
+  if(t.dataset.phpdelta){
+    const [pid,raw]=t.dataset.phpdelta.split(':');
+    setPlayerHp(pid,parseInt(raw)); return;
+  }
+  if(t.dataset.phpfull){
+    const pid=t.dataset.phpfull; const p=GM.players[pid]; if(p){p.hp=p.maxHp;pushPlayerCombat(pid);}
+    render(); return;
+  }
+  if(t.dataset.phs){
+    const [pid,raw]=t.dataset.phs.split(':');
+    setHeatStrain(pid,parseInt(raw)); return;
+  }
+  if(t.dataset.ptokens){
+    const [pid,raw]=t.dataset.ptokens.split(':');
+    const p=GM.players[pid]; if(!p) return;
+    p.resourceTokens=Math.max(0,(p.resourceTokens||0)+parseInt(raw));
+    pushPlayerCombat(pid); render(); return;
+  }
+  if(t.dataset.pep){
+    const [pid,raw]=t.dataset.pep.split(':');
+    awardEpPlayer(pid,parseInt(raw)); return;
+  }
+  if(t.dataset.pcond){
+    const [pid,...rest]=t.dataset.pcond.split(':'); toggleCondition(pid,rest.join(':')); return;
+  }
+  if(t.dataset.npchp){
+    const [id,raw]=t.dataset.npchp.split(':'); npcHp(id,parseInt(raw)); return;
+  }
+  if(t.dataset.npchpfull){
+    const n=GM.npcs.find(x=>x.id===t.dataset.npchpfull); if(n){n.hp=n.maxHp;render();} return;
+  }
+  if(t.dataset.confirmharvest){ confirmHarvest(t.dataset.confirmharvest); return; }
+  if(t.dataset.rejectharvest){ rejectHarvest(t.dataset.rejectharvest); return; }
+  if(t.dataset.confirmpd){ confirmPlatformDestroy(t.dataset.confirmpd); return; }
+  if(t.dataset.rejectpd){ rejectPlatformDestroy(t.dataset.rejectpd); return; }
+  if(t.dataset.confirmdr){ confirmDamage(t.dataset.confirmdr); return; }
+  if(t.dataset.rejectdr){ rejectDamage(t.dataset.rejectdr); return; }
+  if(t.dataset.copylink){
+    navigator.clipboard?.writeText(t.dataset.copylink).then(()=>{ t.textContent='✓ Copied!'; setTimeout(()=>{t.textContent='📋 Copy Link';},1500); });
+    return;
+  }
+  if(t.dataset.clearlog){ GM.log=[]; render(); return; }
+  if(t.dataset.scriptnext){
+    const script = TRIAL_SCRIPT[TRIALS[GM.currentTrialIdx]?.id] || [];
+    GM.scriptCard = Math.min(GM.scriptCard+1, script.length-1);
+    render(); return;
+  }
+  if(t.dataset.scriptprev){
+    GM.scriptCard = Math.max(GM.scriptCard-1, 0);
+    render(); return;
+  }
+  if(t.dataset.scriptoggle){ GM.scriptOpen=!GM.scriptOpen; render(); return; }
+});
+
+// ── BOOT ───────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
